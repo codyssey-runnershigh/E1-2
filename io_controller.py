@@ -35,7 +35,7 @@ class io_controller:
                   continue
               intValue = int(value)
               if intValue < min_value or intValue > max_value:
-                  self.warn("범위를 벗어난 값입니다.")
+                  self.warn(f"범위를 벗어난 값입니다.{min_value}~{max_value} 사이의 숫자를 입력하세요")
                   continue
             except ValueError:
                 self.warn("잘못된 입력입니다. 정수를 입력해주세요.")
