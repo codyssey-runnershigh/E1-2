@@ -1,28 +1,32 @@
+from io_controller import io_controller,ExitSignal
 
 class QuizGame:
   def __init__(self):
     return
 
   def run_game(self):
-    self.print_menu()
+    io = io_controller()
     while True:
       try:
-        print("welcome")
+        self.print_menu(io)
+        menu_num = io.ask_int("input int test: ", 1, 5)
+        print(menu_num)
+      except ExitSignal:
+        print("EXIT")
+        break
       except :
-        # case
         print("ERROR")
+        break
       finally:
-        raise NotImplementedError
+        print("finally")
 
-  def print_menu(self):
-    print("========================================")
-    print("            🎯 QUIZ SHOW 🎯")
-    print("========================================")
-    print("1. 퀴즈 풀기")
-    print("2. 퀴즈 추가")
-    print("3. 퀴즈 목록")
-    print("4. 점수 확인")
-    print("========================================")
+  def print_menu(self, io):
+    io.title("            🎯 QUIZ SHOW 🎯")
+    io.text("1. 퀴즈 풀기")
+    io.text("2. 퀴즈 추가")
+    io.text("3. 퀴즈 목록")
+    io.text("4. 점수 확인")
+    io.divider()
 
 gameInstance = QuizGame()
 gameInstance.run_game()
