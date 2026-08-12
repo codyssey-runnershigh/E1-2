@@ -32,6 +32,8 @@ class QuizGame:
           else:
             for idx, quiz in enumerate(self.quiz_list, start=1):
               self.set_quiz(idx, quiz)
+
+          self.print_result(self.quiz_list)
         elif select_menu_num == ADD_QUIZ:
           continue
         elif select_menu_num == QUIZ_LIST:
@@ -64,18 +66,31 @@ class QuizGame:
 
   def set_quiz(self, num:int, quiz: Quiz):
     self.print_quiz(num, quiz)
+    self.io.blank()
+
     user_answer = self.io.ask_int("정답: ", 1, 4)
     quiz.submit_answer(user_answer)
-    if quiz.is_correct(user_answer):
+    self.io.blank()
+
+    if quiz.is_correct():
       self.io.success("정답입니다!")
     else:
       self.io.warn("오답입니다.")
+    self.io.blank()
 
-  def check_result(self, quiz_list: list[Quiz]):
+  def print_result(self, quiz_list: list[Quiz]):
     '''
       퀴즈 결과 통계, 저장
     '''
-    pass
+    total_count = len(quiz_list)
+    correct_count = 0
+    for quiz in quiz_list:
+      if quiz.is_correct():
+        correct_count += 1
+
+    self.io.title("퀴즈 결과")
+    self.io.text(f"총 {total_count} 문제 중 {correct_count} 문제 정답")
+    self.io.text(f"점수: {round(correct_count / total_count * 100)} 점")
 
   def quiz_loader(self, quizData):
     self.load_data, self.status = self.loader.load()
@@ -83,7 +98,7 @@ class QuizGame:
     if self.status == STATUS_OK and self.load_data and "quizzes" in self.load_data:
       for item in self.load_data["quizzes"]:
         self.quiz_list.append(Quiz.from_dict(item))
-    #todo: 점수 load
+    self.score_list = self.load_data.get("records", []) if self.status == STATUS_OK else []
 
 
 gameInstance = QuizGame()

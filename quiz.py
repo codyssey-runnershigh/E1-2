@@ -2,12 +2,13 @@ class Quiz:
     def __init__(self, question: str, choices: list[str], answer: int) -> None:
         self.question = question
         self.choices = list(choices)
+        self.correct_answer = answer
 
     def submit_answer(self, user_answer: int) -> None:
-        self.answer = int(user_answer)
+        self.user_answer = int(user_answer)
 
-    def is_correct(self, user_answer: int) -> bool:
-        return int(user_answer) == self.answer
+    def is_correct(self) -> bool:
+        return self.user_answer == self.correct_answer
 
     def correct_choice_text(self) -> str:
         if 1 <= self.answer <= len(self.choices):

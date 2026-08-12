@@ -31,7 +31,21 @@
       "CORRECT_ANSWER": 3
     }
   ],
-  "score": {
-    "total": 0
-  }
+  "records": [
+    {
+      "QUESTION_COUNT": 5,
+      "CORRECT_COUNT": 2,
+      "SCORE": 40
+    },
+    {
+      "QUESTION_COUNT": 5,
+      "CORRECT_COUNT": 5,
+      "SCORE": 100
+    },
+    {
+      "QUESTION_COUNT": 5,
+      "CORRECT_COUNT": 4,
+      "SCORE": 80
+    }
+  ]
 }
