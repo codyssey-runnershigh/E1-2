@@ -54,6 +54,7 @@ class io_controller:
                 if not value and not allow_empty:
                     self.warn("빈 입력은 허용되지 않습니다.")
                     continue
+                return value
             except ExitSignal:
                 raise ExitSignal()
 

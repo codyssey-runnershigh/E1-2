@@ -31,8 +31,8 @@ class Quiz:
     def to_dict(self) -> dict:
         return {
             "QUESTION": self.question,
-            "ANSWER": {str(i + 1): choice for i, choice in enumerate(self.choices)},
-            "CORRECT_ANSWER": self.answer,
+            "CHOICES": {str(i + 1): choice for i, choice in enumerate(self.choices)},
+            "CORRECT_ANSWER": self.correct_answer,
         }
 
     @classmethod

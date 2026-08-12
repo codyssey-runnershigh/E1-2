@@ -35,7 +35,7 @@ class QuizGame:
 
           self.print_result(self.quiz_list)
         elif select_menu_num == ADD_QUIZ:
-          continue
+          self.add_quiz()
         elif select_menu_num == QUIZ_LIST:
           self.io.title("📋 퀴즈 목록")
           for idx, quiz in enumerate(self.quiz_list, start=1):
@@ -63,6 +63,24 @@ class QuizGame:
   def print_quiz(self, num: int, quiz: Quiz):
     self.io.divider(True)
     print(quiz.format_question(num))
+
+  def add_quiz(self):
+    self.io.title("➕ 퀴즈 추가")
+    question = self.io.ask_text("문제: ")
+    choices = [
+      self.io.ask_text(f"{idx}번 선택지: ")
+      for idx in range(1, 5)
+    ]
+    correct_answer = self.io.ask_int("정답 번호: ", 1, len(choices))
+    quiz = Quiz(question, choices, correct_answer)
+
+    if not isinstance(self.load_data, dict):
+      self.load_data = {"quizzes": [], "records": []}
+    self.load_data.setdefault("quizzes", []).append(quiz.to_dict())
+    self.loader.save(self.load_data)
+    self.quiz_list.append(quiz)
+    self.status = STATUS_OK
+    self.io.success("퀴즈가 추가되었습니다.")
 
   def set_quiz(self, num:int, quiz: Quiz):
     self.print_quiz(num, quiz)

@@ -17,7 +17,7 @@ class Storage:
         """파일 존재 확인"""
         return os.path.exists(self.path)
 
-    def load(self) :
+    def load(self):
         """
             파일 데이터 LOAD 및 validation
             데이터와 로드실패여부 반환
@@ -32,3 +32,8 @@ class Storage:
         if not isinstance(data, dict) or not isinstance(data.get("quizzes"), list):
             return None, STATUS_BROKEN
         return data, STATUS_OK
+
+    def save(self, data: dict) -> None:
+        """현재 퀴즈와 점수 데이터를 JSON 파일에 저장한다."""
+        with open(self.path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
