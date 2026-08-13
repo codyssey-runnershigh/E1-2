@@ -1,6 +1,7 @@
 from io_controller import io_controller, ExitSignal
 from storage_handler import Storage, STATUS_OK
 from quiz import Quiz
+from datetime import datetime
 
 QUIZ_PLAY = 1
 ADD_QUIZ = 2
@@ -19,6 +20,7 @@ class QuizGame:
     if self.status == STATUS_OK and self.load_data and QUIZZES in self.load_data:
       for item in self.load_data[QUIZZES]:
         self.quiz_list.append(Quiz.from_dict(item))
+    self._result_saved = False
     return
 
   def run_game(self):
@@ -33,6 +35,7 @@ class QuizGame:
             self.io.warn("퀴즈 목록을 불러올 수 없거나 퀴즈가 없습니다.")
             continue
           else:
+            self._result_saved = False
             for idx, quiz in enumerate(self.quiz_list, start=1):
               self.set_quiz(idx, quiz)
           self.print_save_result(self.quiz_list)
@@ -44,7 +47,17 @@ class QuizGame:
           for idx, quiz in enumerate(self.quiz_list, start=1):
             self.print_quiz(idx, quiz)
         elif select_menu_num == CHECK_SCORE:
-          continue
+          self.io.title("🏆 점수 기록")
+          self.load_data, self.status = self.storage.load()
+          records = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
+          if not records:
+            self.io.warn("저장된 점수 기록이 없습니다.")
+          else:
+            top_records = sorted(records, key=lambda x: x.get("SCORE", 0), reverse=True)[:5]
+            for idx, record in enumerate(top_records, start=1):
+              date_str = record.get("DATE", "N/A")
+              self.io.text(f"[{idx}] {date_str} - 총 {record.get('QUESTION_COUNT')}문제 중 {record.get('CORRECT_COUNT')}문제 정답 ({record.get('SCORE')}점)")
+          self.io.divider()
 
       except ExitSignal:
         self.io.warn("EXIT")
@@ -53,7 +66,8 @@ class QuizGame:
         self.io.warn("ERROR")
         break
       finally:
-        self.io.info("finally")
+        #self.io.info("finally")
+        pass
 
   def print_menu(self):
     self.io.text(f"{QUIZ_PLAY}. 퀴즈 풀기")
@@ -108,10 +122,12 @@ class QuizGame:
         correct_count += 1
 
     score = round(correct_count / total_count * 100)
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     self.io.title("퀴즈 결과")
     self.io.text(f"총 {total_count} 문제 중 {correct_count} 문제 정답")
     self.io.text(f"점수: {score} 점")
+    self.io.text(f"저장 시각: {current_time}")
 
     # 결과를 records에 저장 (1회만)
     if not getattr(self, "_result_saved", False):
@@ -119,6 +135,7 @@ class QuizGame:
         "QUESTION_COUNT": total_count,
         "CORRECT_COUNT": correct_count,
         "SCORE": score,
+        "DATE": current_time,
       }
       if not isinstance(self.load_data, dict):
         self.load_data = {QUIZZES: [], RECORDS: []}
