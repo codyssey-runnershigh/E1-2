@@ -6,6 +6,8 @@ QUIZ_PLAY = 1
 ADD_QUIZ = 2
 QUIZ_LIST = 3
 CHECK_SCORE = 4
+QUIZZES = "quizzes"
+RECORDS = "records"
 
 class QuizGame:
 
@@ -14,14 +16,15 @@ class QuizGame:
     self.storage = Storage()
     self.load_data, self.status = self.storage.load()
     self.quiz_list: list[Quiz] = []
-    if self.status == STATUS_OK and self.load_data and "quizzes" in self.load_data:
-      for item in self.load_data["quizzes"]:
+    if self.status == STATUS_OK and self.load_data and QUIZZES in self.load_data:
+      for item in self.load_data[QUIZZES]:
         self.quiz_list.append(Quiz.from_dict(item))
     return
 
   def run_game(self):
     while True:
       try:
+        self.io.title("            🎯 QUIZ SHOW 🎯")
         self.print_menu()
         select_menu_num = self.io.ask_int("선택: ", QUIZ_PLAY, CHECK_SCORE)
 
@@ -32,9 +35,9 @@ class QuizGame:
           else:
             for idx, quiz in enumerate(self.quiz_list, start=1):
               self.set_quiz(idx, quiz)
-
-          self.print_result(self.quiz_list)
+          self.print_save_result(self.quiz_list)
         elif select_menu_num == ADD_QUIZ:
+          self.io.title("➕ 퀴즈 추가")
           self.add_quiz()
         elif select_menu_num == QUIZ_LIST:
           self.io.title("📋 퀴즈 목록")
@@ -53,7 +56,6 @@ class QuizGame:
         self.io.info("finally")
 
   def print_menu(self):
-    self.io.title("            🎯 QUIZ SHOW 🎯")
     self.io.text(f"{QUIZ_PLAY}. 퀴즈 풀기")
     self.io.text(f"{ADD_QUIZ}. 퀴즈 추가")
     self.io.text(f"{QUIZ_LIST}. 퀴즈 목록")
@@ -62,10 +64,9 @@ class QuizGame:
 
   def print_quiz(self, num: int, quiz: Quiz):
     self.io.divider(True)
-    print(quiz.format_question(num))
+    self.io.text(quiz.format_question(num))
 
   def add_quiz(self):
-    self.io.title("➕ 퀴즈 추가")
     question = self.io.ask_text("문제: ")
     choices = [
       self.io.ask_text(f"{idx}번 선택지: ")
@@ -75,8 +76,8 @@ class QuizGame:
     quiz = Quiz(question, choices, correct_answer)
 
     if not isinstance(self.load_data, dict):
-      self.load_data = {"quizzes": [], "records": []}
-    self.load_data.setdefault("quizzes", []).append(quiz.to_dict())
+      self.load_data = {QUIZZES: [], RECORDS: []}
+    self.load_data.setdefault(QUIZZES, []).append(quiz.to_dict())
     self.storage.save(self.load_data)
     self.quiz_list.append(quiz)
     self.status = STATUS_OK
@@ -96,7 +97,7 @@ class QuizGame:
       self.io.warn("오답입니다.")
     self.io.blank()
 
-  def print_result(self, quiz_list: list[Quiz]):
+  def print_save_result(self, quiz_list: list[Quiz]):
     '''
       퀴즈 결과 통계, 저장 (1회만)
     '''
@@ -120,8 +121,8 @@ class QuizGame:
         "SCORE": score,
       }
       if not isinstance(self.load_data, dict):
-        self.load_data = {"quizzes": [], "records": []}
-      self.load_data.setdefault("records", []).append(record)
+        self.load_data = {QUIZZES: [], RECORDS: []}
+      self.load_data.setdefault(RECORDS, []).append(record)
       self.storage.save(self.load_data)
       self._result_saved = True
       self.io.info("결과가 저장되었습니다.")
@@ -129,10 +130,10 @@ class QuizGame:
   def quiz_loader(self, quizData):
     self.load_data, self.status = self.storage.load()
     self.quiz_list: list[Quiz] = []
-    if self.status == STATUS_OK and self.load_data and "quizzes" in self.load_data:
-      for item in self.load_data["quizzes"]:
+    if self.status == STATUS_OK and self.load_data and QUIZZES in self.load_data:
+      for item in self.load_data[QUIZZES]:
         self.quiz_list.append(Quiz.from_dict(item))
-    self.score_list = self.load_data.get("records", []) if self.status == STATUS_OK else []
+    self.score_list = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
 
 
 gameInstance = QuizGame()
