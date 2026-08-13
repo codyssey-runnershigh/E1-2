@@ -31,33 +31,17 @@ class QuizGame:
         select_menu_num = self.io.ask_int("선택: ", QUIZ_PLAY, CHECK_SCORE)
 
         if select_menu_num == QUIZ_PLAY:
-          if not self.quiz_list:
-            self.io.warn("퀴즈 목록을 불러올 수 없거나 퀴즈가 없습니다.")
-            continue
-          else:
-            self._result_saved = False
-            for idx, quiz in enumerate(self.quiz_list, start=1):
-              self.set_quiz(idx, quiz)
-          self.print_save_result(self.quiz_list)
+          self.io.title("🎮 퀴즈 풀기")
+          self.play_quiz()
         elif select_menu_num == ADD_QUIZ:
           self.io.title("➕ 퀴즈 추가")
           self.add_quiz()
         elif select_menu_num == QUIZ_LIST:
           self.io.title("📋 퀴즈 목록")
-          for idx, quiz in enumerate(self.quiz_list, start=1):
-            self.print_quiz(idx, quiz)
+          self.show_quiz_list()
         elif select_menu_num == CHECK_SCORE:
           self.io.title("🏆 점수 기록")
-          self.load_data, self.status = self.storage.load()
-          records = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
-          if not records:
-            self.io.warn("저장된 점수 기록이 없습니다.")
-          else:
-            top_records = sorted(records, key=lambda x: x.get("SCORE", 0), reverse=True)[:5]
-            for idx, record in enumerate(top_records, start=1):
-              date_str = record.get("DATE", "N/A")
-              self.io.text(f"[{idx}] {date_str} - 총 {record.get('QUESTION_COUNT')}문제 중 {record.get('CORRECT_COUNT')}문제 정답 ({record.get('SCORE')}점)")
-          self.io.divider()
+          self.check_score()
 
       except ExitSignal:
         self.io.warn("EXIT")
@@ -66,8 +50,7 @@ class QuizGame:
         self.io.warn("ERROR")
         break
       finally:
-        #self.io.info("finally")
-        pass
+        self.io.blank()
 
   def print_menu(self):
     self.io.text(f"{QUIZ_PLAY}. 퀴즈 풀기")
@@ -96,6 +79,20 @@ class QuizGame:
     self.quiz_list.append(quiz)
     self.status = STATUS_OK
     self.io.success("퀴즈가 추가되었습니다.")
+
+  def play_quiz(self):
+    if not self.quiz_list:
+      self.io.warn("퀴즈 목록을 불러올 수 없거나 퀴즈가 없습니다.")
+      return
+
+    self._result_saved = False
+    for idx, quiz in enumerate(self.quiz_list, start=1):
+      self.set_quiz(idx, quiz)
+    self.print_save_result(self.quiz_list)
+
+  def show_quiz_list(self):
+    for idx, quiz in enumerate(self.quiz_list, start=1):
+      self.print_quiz(idx, quiz)
 
   def set_quiz(self, num:int, quiz: Quiz):
     self.print_quiz(num, quiz)
@@ -143,6 +140,18 @@ class QuizGame:
       self.storage.save(self.load_data)
       self._result_saved = True
       self.io.info("결과가 저장되었습니다.")
+
+  def check_score(self):
+    self.load_data, self.status = self.storage.load()
+    records = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
+    if not records:
+      self.io.warn("저장된 점수 기록이 없습니다.")
+    else:
+      top_records = sorted(records, key=lambda x: x.get("SCORE", 0), reverse=True)[:5]
+      for idx, record in enumerate(top_records, start=1):
+        date_str = record.get("DATE", "N/A")
+        self.io.text(f"[{idx}] {date_str} - 총 {record.get('QUESTION_COUNT')}문제 중 {record.get('CORRECT_COUNT')}문제 정답 ({record.get('SCORE')}점)")
+    self.io.divider()
 
   def quiz_loader(self, quizData):
     self.load_data, self.status = self.storage.load()
