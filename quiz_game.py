@@ -11,8 +11,8 @@ class QuizGame:
 
   def __init__(self):
     self.io = io_controller()
-    self.loader = Storage()
-    self.load_data, self.status = self.loader.load()
+    self.storage = Storage()
+    self.load_data, self.status = self.storage.load()
     self.quiz_list: list[Quiz] = []
     if self.status == STATUS_OK and self.load_data and "quizzes" in self.load_data:
       for item in self.load_data["quizzes"]:
@@ -77,7 +77,7 @@ class QuizGame:
     if not isinstance(self.load_data, dict):
       self.load_data = {"quizzes": [], "records": []}
     self.load_data.setdefault("quizzes", []).append(quiz.to_dict())
-    self.loader.save(self.load_data)
+    self.storage.save(self.load_data)
     self.quiz_list.append(quiz)
     self.status = STATUS_OK
     self.io.success("퀴즈가 추가되었습니다.")
@@ -98,7 +98,7 @@ class QuizGame:
 
   def print_result(self, quiz_list: list[Quiz]):
     '''
-      퀴즈 결과 통계, 저장
+      퀴즈 결과 통계, 저장 (1회만)
     '''
     total_count = len(quiz_list)
     correct_count = 0
@@ -106,12 +106,28 @@ class QuizGame:
       if quiz.is_correct():
         correct_count += 1
 
+    score = round(correct_count / total_count * 100)
+
     self.io.title("퀴즈 결과")
     self.io.text(f"총 {total_count} 문제 중 {correct_count} 문제 정답")
-    self.io.text(f"점수: {round(correct_count / total_count * 100)} 점")
+    self.io.text(f"점수: {score} 점")
+
+    # 결과를 records에 저장 (1회만)
+    if not getattr(self, "_result_saved", False):
+      record = {
+        "QUESTION_COUNT": total_count,
+        "CORRECT_COUNT": correct_count,
+        "SCORE": score,
+      }
+      if not isinstance(self.load_data, dict):
+        self.load_data = {"quizzes": [], "records": []}
+      self.load_data.setdefault("records", []).append(record)
+      self.storage.save(self.load_data)
+      self._result_saved = True
+      self.io.info("결과가 저장되었습니다.")
 
   def quiz_loader(self, quizData):
-    self.load_data, self.status = self.loader.load()
+    self.load_data, self.status = self.storage.load()
     self.quiz_list: list[Quiz] = []
     if self.status == STATUS_OK and self.load_data and "quizzes" in self.load_data:
       for item in self.load_data["quizzes"]:
