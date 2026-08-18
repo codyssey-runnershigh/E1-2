@@ -9,17 +9,68 @@ QUIZ_LIST = 3
 CHECK_SCORE = 4
 QUIZZES = "quizzes"
 RECORDS = "records"
+_DEFAULT_QUIZ_DATA = {
+    "quizzes": [
+       {
+          "QUESTION": "다음 중 윤동주의 시집은 무엇인가?",
+          "CHOICES": {
+            "1": "청록집",
+            "2": "진달래꽃",
+            "3": "하늘과 바람과 별과 시",
+            "4": "님의 침묵"
+          },
+          "CORRECT_ANSWER": 3
+        },
+        {
+          "QUESTION": "다음 중 이상의 작품은 무엇인가?",
+          "CHOICES": {
+            "1": "날개",
+            "2": "메밀꽃 필 무렵",
+            "3": "동백꽃",
+            "4": "소나기"
+          },
+          "CORRECT_ANSWER": 1
+        },
+        {
+          "QUESTION": "다음 중 밀란 쿤데라의 대표작은 무엇인가?",
+          "CHOICES": {
+            "1": "이방인",
+            "2": "참을 수 없는 존재의 가벼움",
+            "3": "변신",
+            "4": "백년의 고독"
+          },
+          "CORRECT_ANSWER": 2
+        },
+        {
+          "QUESTION": "밀란 쿤데라의 소설 『참을 수 없는 존재의 가벼움』에서 ‘가벼움’과 대비되는 개념은 무엇인가?",
+          "CHOICES": {
+            "1": "침묵",
+            "2": "무거움",
+            "3": "자유",
+            "4": "우연"
+          },
+          "CORRECT_ANSWER": 2
+        },
+        {
+          "QUESTION": "다음 중 표도르 도스토옙스키의 작품은 무엇인가?",
+          "CHOICES": {
+            "1": "죄와 벌",
+            "2": "전쟁과 평화",
+            "3": "아버지와 아들",
+            "4": "닥터 지바고"
+          },
+          "CORRECT_ANSWER": 1
+        },
+    ],
+    "records": []
+  }
 
 class QuizGame:
 
   def __init__(self):
     self.io = io_controller()
     self.storage = Storage()
-    self.load_data, self.status = self.storage.load()
-    self.quiz_list: list[Quiz] = []
-    if self.status == STATUS_OK and self.load_data and QUIZZES in self.load_data:
-      for item in self.load_data[QUIZZES]:
-        self.quiz_list.append(Quiz.from_dict(item))
+    self._load_data_with_fallback()
     self._result_saved = False
     return
 
@@ -44,7 +95,7 @@ class QuizGame:
           self.check_score()
 
       except ExitSignal:
-        self.io.warn("EXIT")
+        self.io.warn("KeyboardInterrupt")
         break
       except :
         self.io.warn("ERROR")
@@ -142,8 +193,8 @@ class QuizGame:
       self.io.info("결과가 저장되었습니다.")
 
   def check_score(self):
-    self.load_data, self.status = self.storage.load()
-    records = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
+    self._load_data_with_fallback()
+    records = self.load_data.get(RECORDS, [])
     if not records:
       self.io.warn("저장된 점수 기록이 없습니다.")
     else:
@@ -154,13 +205,44 @@ class QuizGame:
     self.io.divider()
 
   def quiz_loader(self, quizData):
+    self._load_data_with_fallback()
+    self.score_list = self.load_data.get(RECORDS, [])
+
+  def _load_data_with_fallback(self):
     self.load_data, self.status = self.storage.load()
-    self.quiz_list: list[Quiz] = []
-    if self.status == STATUS_OK and self.load_data and QUIZZES in self.load_data:
-      for item in self.load_data[QUIZZES]:
-        self.quiz_list.append(Quiz.from_dict(item))
-    self.score_list = self.load_data.get(RECORDS, []) if self.status == STATUS_OK else []
+    is_valid = True
+    if self.status != STATUS_OK or not isinstance(self.load_data, dict) or QUIZZES not in self.load_data:
+      is_valid = False
+    else:
+      try:
+        temp_list = []
+        for item in self.load_data[QUIZZES]:
+          temp_list.append(Quiz.from_dict(item))
+      except (ValueError, TypeError, KeyError):
+        is_valid = False
+
+    if not is_valid:
+      import copy
+      import shutil
+
+      # 기존 파일이 존재하는 경우 (포맷이 손상되었거나 잘못된 스키마인 경우) 백업 생성
+      if self.storage.exists():
+        backup_path = self.storage.path + ".bak"
+        try:
+          shutil.copyfile(self.storage.path, backup_path)
+          self.io.info(f"기존의 유효하지 않은 파일을 백업으로 보존했습니다: {backup_path}")
+        except Exception as e:
+          self.io.warn(f"기존 파일 백업 중 오류 발생: {e}")
+      self.load_data = copy.deepcopy(_DEFAULT_QUIZ_DATA)
+      self.status = STATUS_OK
+      self.io.warn("데이터가 유효하지 않거나 없습니다. 기본 데이터를 사용, 저장합니다.")
+      self.storage.save(self.load_data)
+
+    self.quiz_list = []
+    for item in self.load_data[QUIZZES]:
+      self.quiz_list.append(Quiz.from_dict(item))
 
 
-gameInstance = QuizGame()
-gameInstance.run_game()
+if __name__ == "__main__":
+  gameInstance = QuizGame()
+  gameInstance.run_game()
