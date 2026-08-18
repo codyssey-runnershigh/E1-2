@@ -7,6 +7,7 @@ QUIZ_PLAY = 1
 ADD_QUIZ = 2
 QUIZ_LIST = 3
 CHECK_SCORE = 4
+EXIT_GAME = 5
 QUIZZES = "quizzes"
 RECORDS = "records"
 _DEFAULT_QUIZ_DATA = {
@@ -79,7 +80,7 @@ class QuizGame:
       try:
         self.io.title("            🎯 QUIZ SHOW 🎯")
         self.print_menu()
-        select_menu_num = self.io.ask_int("선택: ", QUIZ_PLAY, CHECK_SCORE)
+        select_menu_num = self.io.ask_int("선택: ", QUIZ_PLAY, EXIT_GAME)
 
         if select_menu_num == QUIZ_PLAY:
           self.io.title("🎮 퀴즈 풀기")
@@ -93,6 +94,9 @@ class QuizGame:
         elif select_menu_num == CHECK_SCORE:
           self.io.title("🏆 점수 기록")
           self.check_score()
+        elif select_menu_num == EXIT_GAME:
+          self.io.success("게임을 종료합니다.")
+          break
 
       except ExitSignal:
         self.io.warn("KeyboardInterrupt")
@@ -108,6 +112,7 @@ class QuizGame:
     self.io.text(f"{ADD_QUIZ}. 퀴즈 추가")
     self.io.text(f"{QUIZ_LIST}. 퀴즈 목록")
     self.io.text(f"{CHECK_SCORE}. 점수 확인")
+    self.io.text(f"{EXIT_GAME}. 종료")
     self.io.divider()
 
   def print_quiz(self, num: int, quiz: Quiz):
