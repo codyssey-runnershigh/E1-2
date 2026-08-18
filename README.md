@@ -90,3 +90,26 @@ E1-2/
 | `records[].CORRECT_COUNT`  | `int`  | 정답 수                          |
 | `records[].SCORE`          | `int`  | 점수 (백분율, 소수점 반올림)     |
 | `records[].DATE`           | `str`  | 저장 시각 (`YYYY-MM-DD HH:MM`)   |
+
+
+## 스크린샷
+
+### 1. 개발 및 실행 환경
+- **환경 설정 (`env.png`)**
+  ![env](screenshots/env.png)
+- **저장소 복제 (`clone.png`)**
+  ![clone](screenshots/clone.png)
+- **Git 커밋 로그 (`gitlog.png`)**
+  ![gitlog](screenshots/gitlog.png)
+
+### 2. 게임 메뉴 및 기능
+- **메인 메뉴 (`menu.png`)**
+  ![menu](screenshots/menu.png)
+- **퀴즈 풀기 (`play.png`)**
+  ![play](screenshots/play.png)
+- **퀴즈 목록 (`quiz_list.png`)**
+  ![quiz_list](screenshots/quiz_list.png)
+- **퀴즈 추가 (`add_quiz.png`)**
+  ![add_quiz](screenshots/add_quiz.png)
+- **점수 확인 (`socre.png`)**
+  ![score](screenshots/socre.png)
