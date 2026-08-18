@@ -96,20 +96,38 @@ E1-2/
 
 ### 1. 개발 및 실행 환경
 - **환경 설정 (`env.png`)**
+
   ![env](screenshots/env.png)
+
 - **저장소 복제 (`clone.png`)**
+
   ![clone](screenshots/clone.png)
+
+- **최신 변경사항 가져오기 (`pull.png`)**
+
+  ![pull](screenshots/pull.png)
+
 - **Git 커밋 로그 (`gitlog.png`)**
+
   ![gitlog](screenshots/gitlog.png)
 
 ### 2. 게임 메뉴 및 기능
 - **메인 메뉴 (`menu.png`)**
+
   ![menu](screenshots/menu.png)
+
 - **퀴즈 풀기 (`play.png`)**
+
   ![play](screenshots/play.png)
+
 - **퀴즈 목록 (`quiz_list.png`)**
+
   ![quiz_list](screenshots/quiz_list.png)
+
 - **퀴즈 추가 (`add_quiz.png`)**
+
   ![add_quiz](screenshots/add_quiz.png)
+
 - **점수 확인 (`socre.png`)**
+
   ![score](screenshots/socre.png)
