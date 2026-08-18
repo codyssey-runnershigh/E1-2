@@ -99,7 +99,7 @@ class QuizGame:
           break
 
       except ExitSignal:
-        self.io.warn("KeyboardInterrupt")
+        self.io.warn("안전하게 종료되었습니다.")
         break
       except :
         self.io.warn("ERROR")
